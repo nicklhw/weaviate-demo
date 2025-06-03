@@ -50,6 +50,11 @@ products = [
         "description": "Durable trail running sneakers with extra grip and ankle support, designed for rough terrains.",
         "category": "Outdoors/Footwear",
     },
+    {
+        "name": "Ultra HD Underwater Camera",
+        "description": "4K Ultra HD action camera. Waterproof and shockproof, perfect for underwater adventures.",
+        "category": "Electronics/Cameras",
+    },
 ]
 
 weaviate_url = os.environ["WEAVIATE_URL"]
@@ -92,8 +97,13 @@ def populate_collection():
                     description="Category label of the product (if known)",
                 ),
             ],
-            vectorizer_config=Configure.Vectorizer.text2vec_openai(),
-            generative_config=Configure.Generative.openai(),
+            vectorizer_config=Configure.Vectorizer.text2vec_openai(
+                model="text-embedding-3-large",
+                dimensions=1024,
+            ),
+            generative_config=Configure.Generative.openai(
+                model="gpt-4o",
+            ),
         )
         print(f"Collection '{collection_name}' created\n")
 
