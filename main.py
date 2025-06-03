@@ -6,7 +6,14 @@ from dotenv import load_dotenv
 from weaviate.connect import ConnectionParams
 from weaviate.classes.init import AdditionalConfig, Timeout, Auth
 from weaviate.classes.query import Filter
+import warnings
 
+# Suppressing Pydantic deprecation warning from the weaviate client
+warnings.filterwarnings(
+    "ignore",
+    message="Accessing the 'model_fields' attribute on the instance is deprecated.",
+    category=DeprecationWarning,
+)
 
 load_dotenv()
 
@@ -88,14 +95,14 @@ def populate_collection():
             vectorizer_config=Configure.Vectorizer.text2vec_openai(),
             generative_config=Configure.Generative.openai(),
         )
-        print(f"Collection '{collection_name}' created")
+        print(f"Collection '{collection_name}' created\n")
 
         collection = client.collections.get(collection_name)
 
         # Ingest data
         for product in products:
             collection.data.insert(properties=product)
-            print(f"\nAdded product: {product['name']}")
+            print(f"Added product: {product['name']}")
 
     except Exception as e:
         print(f"Error: {e}")
@@ -143,21 +150,30 @@ def auto_categorization():
             "category": "",  # To be auto-categorized
         }
 
-        # Perform a semantic search to find the most similar existing product
-        response = collection.query.near_text(query=new_product["description"], limit=1)
+        print("\n--Adding new product--")
+        print(f"Name: {new_product['name']}")
+        print(f"Description: {new_product['description']}")
+        print(f"Category: {new_product['category']}")
+
+        # Perform a hybrid search (vector + keyword) to find the most similar existing product
+        print("\n--Search for most similar product--")
+        response = collection.query.hybrid(query=new_product["description"], limit=1)
 
         # Assign the category from the most similar product
         if response.objects:
             most_similar = response.objects[0]
-            inferred_category = most_similar.properties.get("category", "")
+            inferred_category = most_similar.properties.get("category", "Unknown")
+            print("Most similar product found:")
+            print(f"\nName: {most_similar.properties.get('name')}")
+            print(f"Description: {most_similar.properties.get('description')}")
+            print(f"Category: {most_similar.properties.get('category')}")
             new_product["category"] = inferred_category
-            print(f"\nName: {new_product['name']}")
-            print(f"Description: {new_product['description']}")
-            print(f"Assigned category: {inferred_category}")
         else:
             print("No similar product found to infer category.")
+            new_product["category"] = "Unknown"
 
         # Insert the new product into the collection
+        print(f"\nAdd {new_product['name']} to cateogry: {new_product['category']}")
         collection.data.insert(properties=new_product)
     finally:
         client.close()
@@ -172,17 +188,21 @@ def generate_recommendation():
         collection = client.collections.get(collection_name)
 
         generate_prompt = "Write a one-sentence description for the product: {name}. "
+        question = "What running shoes would you recommend for rough terrain?"
 
         response = collection.generate.bm25(
             query="Running shoes",
             limit=3,
-            grouped_task="What running shoes would you recommend for rough terrain?",
+            grouped_task=question,
             single_prompt=generate_prompt,
         )
 
+        print("\n-- Question ---")
+        print(question)
+
         print("\n--- Recommendations ---")
         print(response.generative.text)
-        print("\n--- Product Details ---")
+        print("\n--- Recommended Products ---\n")
         for o in response.objects:
             print(f"Name: {o.properties['name']}")
             print(f"Description: {o.properties['description']}")
