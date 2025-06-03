@@ -183,7 +183,7 @@ def auto_categorization():
             new_product["category"] = "Unknown"
 
         # Insert the new product into the collection
-        print(f"\nAdd {new_product['name']} to cateogry: {new_product['category']}")
+        print(f"\nAdd {new_product['name']} to category: {new_product['category']}")
         collection.data.insert(properties=new_product)
     finally:
         client.close()
