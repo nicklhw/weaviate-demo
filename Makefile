@@ -1,4 +1,4 @@
-.PHONY: all categorize generate query load
+.PHONY: all categorize generate query load help
 
 # Run all scripts in order
 all: load query categorize generate
@@ -14,3 +14,14 @@ categorize:
 
 generate:
 	uv run generation.py
+
+help:
+	@echo "Usage: make <target>"
+	@echo ""
+	@echo "Targets:"
+	@echo "  all         Run all scripts in order: load, query, categorize, generate"
+	@echo "  load        Run create_collection.py"
+	@echo "  query       Run query_collection.py"
+	@echo "  categorize  Run categorize.py"
+	@echo "  generate    Run generation.py"
+	@echo "  help        Show this help message"
