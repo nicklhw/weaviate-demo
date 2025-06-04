@@ -19,7 +19,7 @@ OPENAI_API_KEY=your-openai-api-key
 3. Run the demo.
 
 ```
-uv run main.py
+make all
 ```
 
 # Notes
