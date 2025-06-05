@@ -1,7 +1,7 @@
 .PHONY: all categorize generate query load help
 
 # Run all scripts in order
-all: load query categorize generate
+all: load query categorize generate image
 
 load:
 	uv run create_collection.py
