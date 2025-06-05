@@ -15,6 +15,9 @@ categorize:
 generate:
 	uv run generation.py
 
+image:
+	uv run image_rag.py
+
 help:
 	@echo "Usage: make <target>"
 	@echo ""
