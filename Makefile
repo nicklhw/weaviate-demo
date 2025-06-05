@@ -27,4 +27,5 @@ help:
 	@echo "  query       Run query_collection.py"
 	@echo "  categorize  Run categorize.py"
 	@echo "  generate    Run generation.py"
+	@echo "  image       Run image_rag.py"
 	@echo "  help        Show this help message"
